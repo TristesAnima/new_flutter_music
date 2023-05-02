@@ -3,11 +3,17 @@ import 'package:get/get.dart';
 
 class DiscoveryController extends GetxController {
   Request request = Request();
+  RxBool spining = false.obs;
   RxList list = [].obs;
+  RxList recommendPlylists= [].obs;
 
   getList() async {
-    var response = await request.get('/playlist/track/all', body: {"limit": 150, "id": "2675458632"});
-    list.value = response!.data['songs'];
+    spining.value = true;
+    var playlist = await request.get('/playlist/track/all', body: {"limit": 150, "id": "2675458632"});
+    var recommend = await request.get('/recommend/resource');
+    list.value = playlist!.data['songs'];
+    recommendPlylists.value = recommend?.data["recommend"];
+    spining.value = false;
   }
 
   @override

@@ -1,3 +1,6 @@
+import 'package:cloud_music_flutter/app/commonWidgets/NeteaseCard.dart';
+import 'package:cloud_music_flutter/app/commonWidgets/Spin.dart';
+import 'package:cloud_music_flutter/app/services/FormatTime.dart';
 import 'package:cloud_music_flutter/app/services/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +21,7 @@ class DiscoveryView extends GetView<DiscoveryController> {
             width: double.infinity,
             height: Adaptive.height(100),
             decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(30), color: const Color.fromRGBO(250, 250, 250, 1)),
+            BoxDecoration(borderRadius: BorderRadius.circular(30), color: const Color.fromRGBO(250, 250, 250, 1)),
             child: GestureDetector(
               onTap: () {},
               child: Row(
@@ -49,12 +52,34 @@ class DiscoveryView extends GetView<DiscoveryController> {
           ],
         ),
         body: Obx(() {
-          return controller.list.isNotEmpty
-              ? ListView.builder(
-                  padding: EdgeInsets.only(bottom: Adaptive.height(Get.find<MusicplayerController>().height)),
-                  itemCount: controller.list.length,
-                  itemBuilder: (cx, i) {
-                    final item = controller.list[i];
+          return Spin(
+              spining: controller.spining.value,
+              child: ListView(
+                shrinkWrap: true,
+                padding: EdgeInsets.only(bottom: Adaptive.height(Get
+                    .find<MusicplayerController>()
+                    .height)),
+                children: [
+                  Container(
+                    height: Adaptive.height(500),
+                    color: Colors.white,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.recommendPlylists.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final item = controller.recommendPlylists[index];
+                        return NeteaseCard(
+                            margin: EdgeInsets.all(Adaptive.width(16)),
+                            coverImg: item["picUrl"],
+                            playCount: Format.playCount(item["playcount"]),
+                            title: item["name"]);
+                      },
+                    ),
+                  ),
+                  const Divider(
+                    color: Colors.black12,
+                  ),
+                  ...controller.list.map((item) {
                     return NeteaseSingleSong(
                       title: item['name'],
                       subTitle: item['al']['name'] ?? '',
@@ -72,10 +97,9 @@ class DiscoveryView extends GetView<DiscoveryController> {
                         );
                       },
                     );
-                  })
-              : const Center(
-                  child: CircularProgressIndicator(),
-                );
+                  }).toList()
+                ],
+              ));
         }));
   }
 }
