@@ -4,6 +4,8 @@ import '../modules/bottom_nav/bindings/bottom_nav_binding.dart';
 import '../modules/bottom_nav/views/bottom_nav_view.dart';
 import '../modules/play_detail/bindings/play_detail_binding.dart';
 import '../modules/play_detail/views/play_detail_view.dart';
+import '../modules/play_list/bindings/play_list_binding.dart';
+import '../modules/play_list/views/play_list_view.dart';
 import '../modules/theme/bindings/theme_binding.dart';
 import '../modules/theme/views/theme_view.dart';
 import '../routerAnimation/NeteaseTransition.dart';
@@ -32,6 +34,13 @@ class AppPages {
       name: _Paths.PLAY_DETAIL,
       page: () => const PlayDetailView(),
       binding: PlayDetailBinding(),
+      transitionDuration: const Duration(milliseconds: 300),
+      customTransition: NeteaseTransition(),
+    ),
+    GetPage(
+      name: _Paths.PLAY_LIST,
+      page: () => const PlayListView(),
+      binding: PlayListBinding(),
       transitionDuration: const Duration(milliseconds: 300),
       customTransition: NeteaseTransition(),
     ),

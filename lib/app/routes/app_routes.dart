@@ -6,6 +6,7 @@ abstract class Routes {
   static const BOTTOM_NAV = _Paths.BOTTOM_NAV;
   static const THEME = _Paths.THEME;
   static const PLAY_DETAIL = _Paths.PLAY_DETAIL;
+  static const PLAY_LIST = _Paths.PLAY_LIST;
 }
 
 abstract class _Paths {
@@ -13,4 +14,5 @@ abstract class _Paths {
   static const BOTTOM_NAV = '/bottom-nav';
   static const THEME = '/theme';
   static const PLAY_DETAIL = '/play-detail';
+  static const PLAY_LIST = '/play-list';
 }

@@ -5,6 +5,7 @@ import 'package:cloud_music_flutter/app/services/Audio.dart';
 import 'package:cloud_music_flutter/app/services/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../services/RandColor.dart';
 import '../controllers/play_detail_controller.dart';
 
 class PlayDetailView extends GetView<PlayDetailController> {
@@ -20,12 +21,10 @@ class PlayDetailView extends GetView<PlayDetailController> {
             // 背景图片
             Transform.scale(
               scale: 1,
-              child: CachedNetworkImage(
-                imageUrl: controller.coverUrl.value,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
+              child: Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft, end: Alignment.bottomRight, colors: RandColor.getRandColor()))),
             ),
             // 模糊背景
             BackdropFilter(

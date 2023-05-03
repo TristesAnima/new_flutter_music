@@ -8,4 +8,16 @@ class Format {
     }
     return '$playCount';
   }
+
+  /// 计算评论
+  static String commentTotal(num playCount) {
+    if (playCount > 10000000) {
+      return '1kw +';
+    } else if (playCount > 10000) {
+      return '1w +';
+    } else if (playCount > 1000) {
+      return '1k +';
+    }
+    return '$playCount';
+  }
 }
