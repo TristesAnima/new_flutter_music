@@ -14,67 +14,68 @@ class PlayDetailView extends GetView<PlayDetailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(() {
-        final findMusicplayerController = Get.find<MusicplayerController>();
-        return Stack(
-          children: [
-            // 背景图片
-            Transform.scale(
-              scale: 1,
-              child: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topLeft, end: Alignment.bottomRight, colors: RandColor.getRandColor()))),
+      body: Stack(
+        children: [
+          // 背景图片
+          Transform.scale(
+            scale: 1,
+            child: Container(
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft, end: Alignment.bottomRight, colors: RandColor.getRandColor()))),
+          ),
+          // 模糊背景
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.white.withOpacity(0.4),
             ),
-            // 模糊背景
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.white.withOpacity(0.4),
-              ),
-            ),
-            // AppBar
-            AppBar(
-              title: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    controller.name.value,
-                    maxLines: 1,
-                    style: TextStyle(fontSize: Adaptive.fs(38), overflow: TextOverflow.ellipsis),
-                  ),
-                  Text(
-                    controller.artists.value,
-                    maxLines: 1,
-                    style: TextStyle(fontSize: Adaptive.fs(30), overflow: TextOverflow.ellipsis),
-                  ),
-                ],
-              ),
-              backgroundColor: Colors.transparent,
-              // 将AppBar的背景色设置为透明
-              elevation: 0,
-              // 隐藏AppBar的阴影
-              centerTitle: true,
-              leading: IconButton(
-                onPressed: () {
-                  Get.back();
-                },
-                icon: const Icon(Icons.keyboard_arrow_down_sharp),
-                iconSize: Adaptive.fs(80),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  icon: const Icon(Icons.share_outlined),
-                  iconSize: Adaptive.fs(56),
+          ),
+          // AppBar
+          AppBar(
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  Get.arguments["name"],
+                  maxLines: 1,
+                  style: TextStyle(fontSize: Adaptive.fs(38), overflow: TextOverflow.ellipsis),
+                ),
+                Text(
+                  Get.arguments["artists"],
+                  maxLines: 1,
+                  style: TextStyle(fontSize: Adaptive.fs(30), overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),
-            // 页面内容
-            Container(
+            backgroundColor: Colors.transparent,
+            // 将AppBar的背景色设置为透明
+            elevation: 0,
+            // 隐藏AppBar的阴影
+            centerTitle: true,
+            leading: IconButton(
+              onPressed: () {
+                Get.back();
+              },
+              icon: const Icon(Icons.keyboard_arrow_down_sharp),
+              iconSize: Adaptive.fs(80),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Get.back();
+                },
+                icon: const Icon(Icons.share_outlined),
+                iconSize: Adaptive.fs(56),
+              ),
+            ],
+          ),
+          // 页面内容
+          Obx(() {
+            final findMusicplayerController = Get.find<MusicplayerController>();
+
+            return SizedBox(
               width: double.infinity,
               height: double.infinity,
               child: Stack(
@@ -92,7 +93,7 @@ class PlayDetailView extends GetView<PlayDetailController> {
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: CachedNetworkImage(
-                      imageUrl: controller.coverUrl.value,
+                      imageUrl: Get.arguments["coverUrl"],
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -187,10 +188,10 @@ class PlayDetailView extends GetView<PlayDetailController> {
                       )),
                 ],
               ),
-            ),
-          ],
-        );
-      }),
+            );
+          }),
+        ],
+      ),
     );
   }
 }
