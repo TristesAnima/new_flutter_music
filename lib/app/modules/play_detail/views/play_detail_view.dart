@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_music_flutter/app/modules/music_player/controllers/music_player_controller.dart';
 import 'package:cloud_music_flutter/app/services/Audio.dart';
 import 'package:cloud_music_flutter/app/services/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../commonWidgets/NeteaseBottomSheet.dart';
 import '../../../services/RandColor.dart';
 import '../controllers/play_detail_controller.dart';
 
@@ -33,22 +33,24 @@ class PlayDetailView extends GetView<PlayDetailController> {
           ),
           // AppBar
           AppBar(
-            title: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  Get.arguments["name"],
-                  maxLines: 1,
-                  style: TextStyle(fontSize: Adaptive.fs(38), overflow: TextOverflow.ellipsis),
-                ),
-                Text(
-                  Get.arguments["artists"],
-                  maxLines: 1,
-                  style: TextStyle(fontSize: Adaptive.fs(30), overflow: TextOverflow.ellipsis),
-                ),
-              ],
-            ),
+            title: Obx(() {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    controller.findMusicplayerController.name.value,
+                    maxLines: 1,
+                    style: TextStyle(fontSize: Adaptive.fs(38), overflow: TextOverflow.ellipsis),
+                  ),
+                  Text(
+                    controller.findMusicplayerController.artist.value,
+                    maxLines: 1,
+                    style: TextStyle(fontSize: Adaptive.fs(30), overflow: TextOverflow.ellipsis),
+                  ),
+                ],
+              );
+            }),
             backgroundColor: Colors.transparent,
             // 将AppBar的背景色设置为透明
             elevation: 0,
@@ -72,32 +74,32 @@ class PlayDetailView extends GetView<PlayDetailController> {
             ],
           ),
           // 页面内容
-          Obx(() {
-            final findMusicplayerController = Get.find<MusicplayerController>();
-
-            return SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: Adaptive.width(580),
-                    height: Adaptive.height(580),
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.7)),
-                  ),
-                  Container(
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: Adaptive.width(580),
+                  height: Adaptive.height(580),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black.withOpacity(0.7)),
+                ),
+                Obx(() {
+                  return Container(
                     width: Adaptive.width(420),
                     height: Adaptive.height(420),
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: CachedNetworkImage(
-                      imageUrl: Get.arguments["coverUrl"],
+                      imageUrl: controller.findMusicplayerController.cover.value,
                       fit: BoxFit.cover,
                     ),
-                  ),
-                  Positioned(
+                  );
+                }),
+                Obx(() {
+                  return Positioned(
                       bottom: Adaptive.height(32),
                       left: 0,
                       right: 0,
@@ -121,7 +123,7 @@ class PlayDetailView extends GetView<PlayDetailController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  findMusicplayerController.currentTextTime.value,
+                                  controller.findMusicplayerController.currentTextTime.value,
                                   style: TextStyle(fontSize: Adaptive.fs(32)),
                                 ),
                                 Expanded(
@@ -135,17 +137,17 @@ class PlayDetailView extends GetView<PlayDetailController> {
                                     thumbShape: RoundSliderThumbShape(enabledThumbRadius: Adaptive.height(8)),
                                   ),
                                   child: Slider(
-                                      value: findMusicplayerController.sliderCurrentValue.value,
+                                      value: controller.findMusicplayerController.sliderCurrentValue.value,
                                       min: 0.0,
-                                      max: findMusicplayerController.sliderEndDuration.value,
+                                      max: controller.findMusicplayerController.sliderEndDuration.value,
                                       onChanged: (newValue) async {
                                         await Audio.seekToSec(Duration(milliseconds: (newValue * 1000).round()));
-                                        findMusicplayerController.sliderCurrentValue.value =
+                                        controller.findMusicplayerController.sliderCurrentValue.value =
                                             double.parse(newValue.toStringAsFixed(0));
                                       }),
                                 )),
                                 Text(
-                                  findMusicplayerController.endTextTime.value,
+                                  controller.findMusicplayerController.endTextTime.value,
                                   style: TextStyle(fontSize: Adaptive.fs(32)),
                                 )
                               ],
@@ -155,7 +157,21 @@ class PlayDetailView extends GetView<PlayDetailController> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                  onPressed: () {},
+                                onPressed: () {
+                                  controller.changePlayMode();
+                                },
+                                icon: Icon(
+                                  controller.findMusicplayerController.playmode.value == 1
+                                      ? Icons.shuffle_outlined
+                                      : Icons.repeat_outlined,
+                                  color: Colors.black45,
+                                  size: Adaptive.fs(70),
+                                ),
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    controller.findMusicplayerController.playPrev();
+                                  },
                                   icon: Icon(
                                     Icons.skip_previous,
                                     color: Colors.black45,
@@ -163,33 +179,50 @@ class PlayDetailView extends GetView<PlayDetailController> {
                                   )),
                               IconButton(
                                 onPressed: () {
-                                  findMusicplayerController.isPlaying.value
+                                  controller.findMusicplayerController.isPlaying.value
                                       ? Audio.pause()
                                       : Audio.play(controller.url);
                                 },
                                 icon: Icon(
-                                  findMusicplayerController.isPlaying.value
+                                  controller.findMusicplayerController.isPlaying.value
                                       ? Icons.pause_circle_outlined
                                       : Icons.play_circle_outline_outlined,
                                   color: Colors.black45,
-                                  size: Adaptive.fs(100),
+                                  size: Adaptive.fs(120),
                                 ),
                               ),
                               IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    controller.findMusicplayerController.playNext();
+                                  },
                                   icon: Icon(
                                     Icons.skip_next,
                                     color: Colors.black45,
                                     size: Adaptive.fs(80),
-                                  ))
-                            ],
+                                  )),
+                              IconButton(
+                                onPressed: () {
+                                  NeteaseBottomSheet.show();
+                                },
+                                icon: Icon(
+                                  Icons.queue_music_outlined,
+                                  color: Colors.black45,
+                                  size: Adaptive.fs(70),
+                                ),
+                              ),
+                            ]
+                                .map((item) => Container(
+                                      margin: EdgeInsets.symmetric(horizontal: Adaptive.width(32)),
+                                      child: item,
+                                    ))
+                                .toList(),
                           ),
                         ],
-                      )),
-                ],
-              ),
-            );
-          }),
+                      ));
+                }),
+              ],
+            ),
+          )
         ],
       ),
     );

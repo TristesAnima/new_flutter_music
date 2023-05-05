@@ -3,13 +3,16 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_music_flutter/app/services/Audio.dart';
 import 'package:cloud_music_flutter/app/services/RandColor.dart';
 import 'package:cloud_music_flutter/app/services/Request.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../../services/ScreenAdapter.dart';
 import '../../../services/Storage.dart';
 
 class MusicplayerController extends GetxController {
   Request request = Request();
   late StreamSubscription positionSubscription;
   late StreamSubscription durationSubscription;
+  ScrollController scrollController = ScrollController();
 
   /// 数据提供给别的页面使用
   /// 显示进度条用
@@ -30,8 +33,8 @@ class MusicplayerController extends GetxController {
   RxString name = '春娇与志明'.obs;
   RxString cover = 'https://p2.music.126.net/0KC-cAFqdJHDomIl3dSv4Q==/109951166676094043.jpg'.obs;
 
-  /// 播放模式 `顺序` `随机`
-  PLAYMODE playmode = Storage.getData('play_mode') ?? PLAYMODE.order;
+  /// 播放模式 `0 顺序` `1 随机`
+  RxInt playmode = 0.obs;
 
   /// 监听播放状态变化
   listenPlayState() {
@@ -87,19 +90,15 @@ class MusicplayerController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    playmode.value = await Storage.getData('play_mode') ?? 0;
 
     /// 监听播放状态变化
     listenPlayState();
 
     /// 监听播放进度条变化
     listenPlayChange();
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
   }
 
   @override
@@ -110,31 +109,31 @@ class MusicplayerController extends GetxController {
   }
 
   /// 增加全部到列表 参数List的Map中需要包含 `uniId` `title` `artists` `coverUrl`
-  addAllToList(List<Map<String, dynamic>> data) async {
+  addAllToList(List data) async {
     await Storage.setData("list", data);
-    update();
+    // update();
   }
 
   /// 增加单个到列表 Map中需要包含 `uniId` `title` `artists` `coverUrl`
-  addSingleToList(Map<String, dynamic> data) async {
-    List<Map<String, dynamic>>? list = await Storage.getData("list");
+  addSingleToList(Map data) async {
+    List? list = await Storage.getData("list");
     if (list == null) {
       await Storage.setData("list", [data]);
     } else {
-      list.add(data);
+      list.insert(0, data);
       await Storage.setData("list", distinctById(list));
     }
-    update();
+    // update();
   }
 
   /// 播放下一首
   playNext() async {
-    List<Map<String, dynamic>>? list = await Storage.getData("list");
+    List? list = await Storage.getData("list");
     if (list != null) {
       var currentIndex = list.indexWhere((item) => item["id"] == id.value);
       if (currentIndex != -1) {
         // 顺序播放
-        if (playmode == PLAYMODE.order) {
+        if (playmode.value == 0) {
           var currentItem = list[currentIndex + 1 > list.length - 1 ? 0 : currentIndex + 1];
           await setPlayConfig(
               currentItem["uniId"], currentItem["title"], currentItem["artists"], currentItem["coverUrl"]);
@@ -144,35 +143,48 @@ class MusicplayerController extends GetxController {
           await setPlayConfig(
               currentItem["uniId"], currentItem["title"], currentItem["artists"], currentItem["coverUrl"]);
         }
-      }
-    }
-  }
-
-  /// 播放上一首
-  playPrev() async {
-    List<Map<String, dynamic>>? list = await Storage.getData("list");
-    if (list != null) {
-      var currentIndex = list.indexWhere((item) => item["id"] == id.value);
-      if (currentIndex != -1) {
-        var currentItem = list[currentIndex == 0 ? list.length - 1 : currentIndex];
+      } else {
+        var currentItem = list[0];
         await setPlayConfig(
             currentItem["uniId"], currentItem["title"], currentItem["artists"], currentItem["coverUrl"]);
       }
     }
   }
 
-  /// 设置播放模式
-  setPlayMode(PLAYMODE playeMode) async {
-    await Storage.setData('play_mode', playeMode);
-    playmode = playeMode;
-    update();
+  /// 播放上一首
+  playPrev() async {
+    List? list = await Storage.getData("list");
+    if (list != null) {
+      var currentIndex = list.indexWhere((item) => item["id"] == id.value);
+      if (currentIndex != -1) {
+        var currentItem = list[currentIndex == 0 ? list.length - 1 : currentIndex - 1];
+        await setPlayConfig(
+            currentItem["uniId"], currentItem["title"], currentItem["artists"], currentItem["coverUrl"]);
+      }
+    }
   }
+
+  /// 设置播放模式 `0 顺序` `1 随机`
+  setPlayMode(int playeMode) async {
+    await Storage.setData('play_mode', playeMode);
+    playmode.value = playeMode;
+  }
+
+  /// 监听音乐列表滚动距离
+// listenPlayListsScroll() async {
+//   List? list = await Storage.getData("list");
+//   if (list != null) {
+//     final currentIndex = list.indexWhere((item) => item["id"] == id.value);
+//     if (currentIndex != -1) {
+//       scrollController.animateTo((currentIndex * Adaptive.height(120)).toDouble(),
+//           duration: const Duration(milliseconds: 240), curve: Curves.easeInOut);
+//     }
+//   }
+// }
 }
 
-enum PLAYMODE { order, random }
-
 /// 查重
-List<Map<String, dynamic>> distinctById(List<Map<String, dynamic>> list) {
+List distinctById(List list) {
   return list.fold([], (accumulator, currentValue) {
     if (accumulator.any((map) => map['id'] == currentValue['id'])) {
       return accumulator;

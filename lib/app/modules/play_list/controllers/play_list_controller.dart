@@ -1,23 +1,25 @@
 import 'package:cloud_music_flutter/app/services/Request.dart';
 import 'package:get/get.dart';
+import '../../music_player/controllers/music_player_controller.dart';
 
 class PlayListController extends GetxController {
+  final findMusicplayerController = Get.find<MusicplayerController>();
   Request request = Request();
   RxMap detail = {}.obs;
   RxMap comment = {}.obs;
   RxList list = [].obs;
 
-  getPlaylistDetail () async{
+  getPlaylistDetail() async {
     final response = await request.get('/playlist/detail', body: {"id": Get.arguments["id"]});
     detail.value = response?.data["playlist"];
   }
 
-  getComment () async{
+  getComment() async {
     final response = await request.get('/comment/playlist', body: {"id": Get.arguments["id"], "limit": 10});
     comment.value = response?.data;
   }
 
-  getList () async{
+  getList() async {
     final response = await request.get('/playlist/track/all', body: {"id": Get.arguments["id"], "limit": 300});
     list.value = response?.data['songs'];
   }

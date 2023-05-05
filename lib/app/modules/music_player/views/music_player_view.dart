@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_music_flutter/app/commonWidgets/NeteaseBottomSheet.dart';
 import 'package:cloud_music_flutter/app/services/ScreenAdapter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,9 +26,6 @@ class MusicPlayerView extends GetView<MusicplayerController> {
                   body: ListTile(
                     onTap: () {
                       Get.toNamed('/play-detail', arguments: {
-                        "coverUrl": controller.cover.value,
-                        "artists": controller.artist.value,
-                        "name": controller.name.value,
                         "url": controller.url,
                       });
                     },
@@ -70,7 +68,9 @@ class MusicPlayerView extends GetView<MusicplayerController> {
                         ),
                         IconButton(
                           color: Colors.black54,
-                          onPressed: () {},
+                          onPressed: () {
+                            NeteaseBottomSheet.show();
+                          },
                           icon: const Icon(
                             Icons.queue_music_outlined,
                           ),

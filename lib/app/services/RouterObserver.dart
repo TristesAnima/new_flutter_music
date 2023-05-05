@@ -7,11 +7,18 @@ import '../routes/app_pages.dart';
 class MyRouteObserver extends NavigatorObserver {
   final musicController = Get.put(MusicplayerController());
 
-  calcMusicPlayerBottom(String? name) {
+  calcMusicPlayerBottom(String? name) async {
     if (name == Routes.BOTTOM_NAV) {
+      // 首页
+      /// 做延时为了使 播放列表关闭的更加自然
+      await Future.delayed(const Duration(milliseconds: 200));
       musicController.bottom.value = 160;
       musicController.isShowPlayer.value = true;
     } else if (name == Routes.PLAY_DETAIL) {
+      // 播放器页面
+      musicController.isShowPlayer.value = false;
+    } else if (name == null) {
+      //  bottomsheet 出现
       musicController.isShowPlayer.value = false;
     } else {
       musicController.bottom.value = 0;

@@ -98,6 +98,13 @@ class DiscoveryView extends GetView<DiscoveryController> {
                           (item['ar'] as List).map((i) => i['name']).join('/'),
                           item['al']['picUrl'],
                         );
+                        Get.find<MusicplayerController>().addSingleToList({
+                          ...item,
+                          "uniId": item["id"],
+                          "title": item['name'],
+                          "artists": (item['ar'] as List).map((i) => i['name']).join('/'),
+                          "coverUrl": item["al"]["picUrl"],
+                        });
                       },
                     );
                   }).toList()
